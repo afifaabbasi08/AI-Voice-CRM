@@ -1,0 +1,112 @@
+{% extends 'crm/dashboard/base.html' %}
+
+{% block title %}Store history{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Store visit history</h1>
+  <p>Search by store name, owner, and area — same identity rule as voice matching.</p>
+</div>
+
+<form class="filter-bar" method="get">
+  <label>
+    Store name
+    <input type="text" name="name" value="{{ store_name }}" placeholder="e.g. Madina Store" required>
+  </label>
+  <label>
+    Owner name
+    <input type="text" name="owner" value="{{ owner_name }}" placeholder="e.g. Hassan Ali">
+  </label>
+  <label>
+    Area
+    <input type="text" name="area" value="{{ area }}" placeholder="e.g. Faisal Town">
+  </label>
+  <button type="submit" class="btn">Search</button>
+</form>
+
+{% if store_name and not store and candidates %}
+<div class="callout callout-warning">
+  <strong>No exact match</strong> for &ldquo;{{ store_name }}&rdquo;
+  {% if owner_name or area %} with the owner/area provided{% endif %}.
+  Pick a candidate below or refine your search.
+</div>
+<div class="card">
+  <div class="card-header">Possible matches</div>
+  <div class="card-body">
+    <ul class="candidate-list">
+      {% for candidate in candidates %}
+      <li>
+        <a href="?name={{ candidate.store_name|urlencode }}&owner={{ candidate.owner_name|urlencode }}&area={{ candidate.area|urlencode }}">
+          {{ candidate }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% elif store_name and not store and not candidates %}
+<div class="callout callout-warning">
+  No store found matching &ldquo;{{ store_name }}&rdquo;. Try a different name or add the store in Admin.
+</div>
+{% endif %}
+
+{% if summary %}
+<div class="stats">
+  <div class="stat accent">
+    <div class="stat-value">{{ summary.total_visits }}</div>
+    <div class="stat-label">Total visits</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">{{ store }}</div>
+  <div class="card-body table-wrap">
+    {% if summary.visits %}
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Employee</th>
+          <th>Status</th>
+          <th>Bags</th>
+          <th>Rate (PKR)</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for visit in summary.visits %}
+        <tr>
+          <td>{{ visit.visit_date|date:"j M Y" }}</td>
+          <td>{{ visit.visit_report.sales_rep.name }}</td>
+          <td>
+            {% if visit.status == 'ORDER_CONFIRMED' %}
+            <span class="badge badge-success">{{ visit.get_status_display }}</span>
+            {% elif visit.status == 'FOLLOW_UP_NEEDED' %}
+            <span class="badge badge-warning">{{ visit.get_status_display }}</span>
+            {% elif visit.status == 'NOT_INTERESTED' or visit.status == 'NO_REQUIREMENT' %}
+            <span class="badge badge-danger">{{ visit.get_status_display }}</span>
+            {% else %}
+            <span class="badge badge-neutral">{{ visit.get_status_display }}</span>
+            {% endif %}
+          </td>
+          <td>{% if visit.quantity_requested %}{{ visit.quantity_requested }}{% else %}&mdash;{% endif %}</td>
+          <td>{% if visit.rate_offered %}{{ visit.rate_offered }}{% else %}&mdash;{% endif %}</td>
+          <td>{{ visit.remarks|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">
+      <strong>No visits yet</strong>
+      <p>This store has no visit records in the system.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% elif not store_name %}
+<div class="callout callout-info">
+  Example: search <strong>Madina Store</strong> + owner <strong>Hassan Ali</strong> + area <strong>Faisal Town</strong> to see two different Madina Stores disambiguated correctly.
+</div>
+{% endif %}
+{% endblock %}

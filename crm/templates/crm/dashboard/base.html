@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %} | AI Voice CRM</title>
+  <link rel="stylesheet" href="{% static 'crm/dashboard.css' %}">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="{% url 'crm:dashboard_home' %}" class="brand">
+          <span class="brand-icon">V</span>
+          AI Voice CRM
+        </a>
+        <nav class="nav">
+          <a href="{% url 'crm:dashboard_home' %}" class="{% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">Employees</a>
+          <a href="{% url 'crm:followups' %}" class="{% if request.resolver_match.url_name == 'followups' %}active{% endif %}">Follow-ups</a>
+          <a href="{% url 'crm:store_history' %}" class="{% if request.resolver_match.url_name == 'store_history' %}active{% endif %}">Store history</a>
+        </nav>
+        <a href="/admin/" class="admin-link">Admin</a>
+      </div>
+    </header>
+
+    <main class="main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+      AI Voice CRM &mdash; Field sales insights from voice notes
+    </footer>
+  </div>
+</body>
+</html>

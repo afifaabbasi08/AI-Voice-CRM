@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'crm',
 ]
 
 MIDDLEWARE = [
@@ -120,3 +122,24 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# User-uploaded files (voice notes)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Allow voice notes up to 25 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024
+
+# Speech-to-text (Phase 4) — local faster-whisper by default; set TRANSCRIPTION_BACKEND=openai later
+TRANSCRIPTION_BACKEND = config('TRANSCRIPTION_BACKEND', default='local')
+WHISPER_MODEL_SIZE = config('WHISPER_MODEL_SIZE', default='small')
+WHISPER_DEVICE = config('WHISPER_DEVICE', default='cpu')
+WHISPER_COMPUTE_TYPE = config('WHISPER_COMPUTE_TYPE', default='int8')
+OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
+OPENAI_WHISPER_MODEL = config('OPENAI_WHISPER_MODEL', default='whisper-1')
+
+# AI extraction (Phase 5) — free Gemini by default; set EXTRACTION_BACKEND=openai later
+EXTRACTION_BACKEND = config('EXTRACTION_BACKEND', default='gemini')
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+GEMINI_MODEL = config('GEMINI_MODEL', default='gemini-2.5-flash')
+OPENAI_EXTRACTION_MODEL = config('OPENAI_EXTRACTION_MODEL', default='gpt-4o-mini')

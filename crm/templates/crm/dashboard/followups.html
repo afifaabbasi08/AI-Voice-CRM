@@ -1,0 +1,71 @@
+{% extends 'crm/dashboard/base.html' %}
+
+{% block title %}Follow-ups{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Pending follow-ups</h1>
+  <p>Stores that need a return visit — across all voice reports.</p>
+</div>
+
+<form class="filter-bar" method="get">
+  <label>
+    Employee
+    <select name="rep">
+      <option value="">All reps</option>
+      {% for rep in reps %}
+      <option value="{{ rep.pk }}" {% if selected_rep and selected_rep.pk == rep.pk %}selected{% endif %}>
+        {{ rep.name }}
+      </option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit" class="btn btn-secondary">Filter</button>
+</form>
+
+<div class="card">
+  <div class="card-header">
+    {% if selected_rep %}{{ selected_rep.name }} — {% endif %}
+    {{ visits|length }} pending follow-up{{ visits|length|pluralize }}
+  </div>
+  <div class="card-body table-wrap">
+    {% if visits %}
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Due date</th>
+          <th>Store</th>
+          <th>Employee</th>
+          <th>Visit date</th>
+          <th>Status</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for visit in visits %}
+        <tr>
+          <td>
+            {% if visit.follow_up_date %}
+            <strong>{{ visit.follow_up_date|date:"j M Y" }}</strong>
+            {% else %}
+            <span class="badge badge-warning">Not set</span>
+            {% endif %}
+          </td>
+          <td>{{ visit.store }}</td>
+          <td>{{ visit.visit_report.sales_rep.name }}</td>
+          <td>{{ visit.visit_date|date:"j M Y" }}</td>
+          <td><span class="badge badge-warning">{{ visit.get_status_display }}</span></td>
+          <td>{{ visit.remarks|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">
+      <strong>No pending follow-ups</strong>
+      <p>All caught up — or no follow-up data extracted yet.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
